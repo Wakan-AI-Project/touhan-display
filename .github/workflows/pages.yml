@@ -79,7 +79,7 @@ jobs:
       - name: Verify unchanged publication files
         shell: bash
         run: |
-          echo "a15cb209a74ebac27aa03605ff1e047f03208d69ad42a4856148b35f0a364597  site/index.html" | sha256sum --check
+          echo "9330349e020515fce55a2c3240d832a0009dae59e4dbb907e203a297b502b243  site/index.html" | sha256sum --check
           echo "1a5732d0f7ca7db9fcae867c222f9199e538080a0951b0ebb75adfc385a65748  site/staff-schedule.html" | sha256sum --check
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6 (node24)
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0 (nested node24)
