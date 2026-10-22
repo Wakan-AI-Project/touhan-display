@@ -1,0 +1,34 @@
+name: Audit actual GitHub action runtime
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    if: github.repository == 'Wakan-AI-Project/touhan-display'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Inspect runner-managed Node24 executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_pid="$PPID"
+          node_bin=""
+          for attempt in {1..12}; do
+            executable="$(readlink -f "/proc/$current_pid/exe" || true)"
+            if [[ "${executable##*/}" == 'Runner.Worker' ]]; then
+              runner_root="$(dirname "$(dirname "$executable")")"
+              candidate="$runner_root/externals/node24/bin/node"
+              if [[ -x "$candidate" ]]; then node_bin="$candidate"; break; fi
+            fi
+            current_pid="$(ps -o ppid= -p "$current_pid" | tr -d ' ')"
+            if [[ -z "$current_pid" || "$current_pid" == 0 ]]; then break; fi
+          done
+          if [[ -z "$node_bin" ]]; then
+            echo 'Runner.Worker sibling Node24 executable was not found.' >&2
+            exit 1
+          fi
+          echo "RUNTIME_PATH=$node_bin"
+          "$node_bin" -p "'RUNTIME_VERSION=' + process.version"
+          "$node_bin" -p "'RUNTIME_EXECUTABLE=' + process.execPath"
+          "$node_bin" -e 'const v=process.versions.node.split(".").map(Number); const fixed=v[0]===24&&(v[1]>22||(v[1]===22&&v[2]>=1)); console.log("VERSION_MEETS_OFFICIAL_FIX_THRESHOLD="+fixed);'
