@@ -1,0 +1,52 @@
+name: Company Pages preview (manual)
+
+# Company parallel publication authorized by the user on 2026-10-22.
+# Manual dispatch only; never changes the original site or Google data.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_company_preview:
+        description: Publish the approved company preview
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: company-pages-preview
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.repository == 'Wakan-AI-Project/touhan-display' && inputs.confirm_company_preview
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Verify unchanged publication files
+        shell: bash
+        run: |
+          echo "a15cb209a74ebac27aa03605ff1e047f03208d69ad42a4856148b35f0a364597  site/index.html" | sha256sum --check
+          echo "1a5732d0f7ca7db9fcae867c222f9199e538080a0951b0ebb75adfc385a65748  site/staff-schedule.html" | sha256sum --check
+      - name: Report managed JavaScript action runtime
+        shell: bash
+        run: |
+          for node_bin in /home/runner/runners/*/externals/node24/bin/node; do
+            if [ -x "$node_bin" ]; then "$node_bin" --version; fi
+          done
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6 (node24)
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5 (node24)
