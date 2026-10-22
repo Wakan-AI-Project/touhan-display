@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>登録販売者 勤務状況│和漢の森</title>
+	<meta name="keywords" content="和漢の森,登録販売者,勤務状況,出勤">
+	<meta name="description" content="和漢の森 糸島薬店の登録販売者の本日の勤務状況をご確認いただけます。">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1, user-scalable=yes, minimum-scale=1, maximum-scale=1">
+	<meta name="format-detection" content="telephone=no">
+
+	<!-- Google Tag Manager -->
+	<script>(function (w, d, s, l, i) {
+			w[l] = w[l] || []; w[l].push({
+				'gtm.start':
+					new Date().getTime(), event: 'gtm.js'
+			}); var f = d.getElementsByTagName(s)[0],
+				j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+					'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+		})(window, document, 'script', 'dataLayer', 'GTM-M3RN48L');</script>
+	<!-- End Google Tag Manager -->
+
+	<link rel="stylesheet" type="text/css" href="../common/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="../common/css/base.css?190408">
+	<link rel="stylesheet" type="text/css" href="../common/css/header.css?20220141">
+	<link rel="stylesheet" type="text/css" href="../common/css/footer.css">
+	<style>
+		/* 勤務状況テーブル */
+		.staff-schedule {
+			max-width: 700px;
+			margin: 30px auto;
+		}
+		.staff-schedule__date {
+			text-align: center;
+			font-size: 22px;
+			font-weight: bold;
+			margin-bottom: 20px;
+			color: #333;
+			letter-spacing: 0.05em;
+		}
+		.staff-schedule__table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 16px;
+		}
+		.staff-schedule__table thead th {
+			background: #276589;
+			color: #fff;
+			padding: 12px 16px;
+			text-align: center;
+			font-weight: bold;
+			letter-spacing: 0.1em;
+		}
+		.staff-schedule__table tbody td {
+			padding: 12px 16px;
+			border-bottom: 1px solid #ddd;
+			text-align: center;
+		}
+		.staff-schedule__table tbody tr:nth-child(even) {
+			background: #f7f9fb;
+		}
+		.staff-schedule__table tbody tr:hover {
+			background: #eaf2f8;
+		}
+		.staff-schedule__note {
+			text-align: center;
+			margin-top: 20px;
+			font-size: 14px;
+			color: #666;
+		}
+		.staff-schedule__empty {
+			text-align: center;
+			padding: 40px 0;
+			font-size: 18px;
+			color: #888;
+		}
+		.staff-schedule__loading {
+			text-align: center;
+			padding: 40px 0;
+			font-size: 16px;
+			color: #999;
+		}
+		.staff-schedule__error {
+			text-align: center;
+			padding: 20px;
+			color: #c00;
+			font-size: 14px;
+		}
+		/* レスポンシブ */
+		@media screen and (max-width: 640px) {
+			.staff-schedule {
+				margin: 20px 10px;
+			}
+			.staff-schedule__date {
+				font-size: 18px;
+			}
+			.staff-schedule__table {
+				font-size: 14px;
+			}
+			.staff-schedule__table thead th,
+			.staff-schedule__table tbody td {
+				padding: 10px 8px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<!------------------GTM----------------->
+	<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M3RN48L" height="0" width="0"
+			style="display:none;visibility:hidden"></iframe></noscript>
+
+	<main class="underlayer">
+		<?php $Path = "../";
+		include("../ssi/header.php"); ?>
+		<article id="contents-wrap">
+			<div class="breadcrumbs"><a href="../">トップ</a>&emsp;&gt;&emsp;<a href="../medicine/">医薬品販売について</a>&emsp;&gt;&emsp;登録販売者 勤務状況</div>
+			<section class="contentsBlock">
+				<div class="mainBlock single">
+					<h2 class="mincho"><span>登録販売者 勤務状況</span></h2>
+
+					<div class="staff-schedule">
+						<div id="schedule-date" class="staff-schedule__date"></div>
+						<div id="schedule-content" class="staff-schedule__loading">読み込み中...</div>
+						<p class="staff-schedule__note">
+							※ シフトにより変動する場合がございます。<br>
+							※ 本ページは毎日自動で更新されます。
+						</p>
+					</div>
+
+				</div>
+			</section>
+		</article>
+		<?php include("../ssi/footer.php"); ?>
+	</main>
+
+	<script src="//code.jquery.com/jquery-3.0.0.min.js"></script>
+	<script type="text/javascript" src="../common/js/common.js"></script>
+
+	<script>
+	(function () {
+		// ====================================
+		// ここにGASデプロイURLを設定
+		// ====================================
+		var GAS_URL = 'https://script.google.com/macros/s/AKfycbxpBTnvoYNDUfDB1Rk99dKtUj977bn0cZozkpUHWHDsVl9Fa4OmUsjAJIbMSwAKzojf/exec';
+
+		// キャッシュキー（日付が変わったら再取得）
+		var today = new Date();
+		var todayKey = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+		var cacheKey = 'staffSchedule_' + todayKey;
+
+		// キャッシュチェック
+		var cached = null;
+		try {
+			var raw = localStorage.getItem(cacheKey);
+			if (raw) {
+				cached = JSON.parse(raw);
+			}
+		} catch (e) {}
+
+		if (cached) {
+			renderSchedule(cached);
+		} else {
+			// GASからデータ取得
+			$.ajax({
+				url: GAS_URL,
+				dataType: 'json',
+				timeout: 10000,
+				success: function (data) {
+					// 古いキャッシュを削除
+					try {
+						for (var i = localStorage.length - 1; i >= 0; i--) {
+							var key = localStorage.key(i);
+							if (key && key.indexOf('staffSchedule_') === 0 && key !== cacheKey) {
+								localStorage.removeItem(key);
+							}
+						}
+						localStorage.setItem(cacheKey, JSON.stringify(data));
+					} catch (e) {}
+					renderSchedule(data);
+				},
+				error: function () {
+					$('#schedule-content').html(
+						'<div class="staff-schedule__error">データの取得に失敗しました。<br>ページを再読み込みしてください。</div>'
+					);
+				}
+			});
+		}
+
+		function renderSchedule(data) {
+			// 日付表示
+			$('#schedule-date').text(data.date + '（' + data.dayOfWeek + '）');
+
+			if (data.message && data.staff.length === 0) {
+				$('#schedule-content').html(
+					'<div class="staff-schedule__empty">' + escapeHtml(data.message) + '</div>'
+				);
+				return;
+			}
+
+			if (data.staff.length === 0) {
+				$('#schedule-content').html(
+					'<div class="staff-schedule__empty">本日の出勤者はおりません。</div>'
+				);
+				return;
+			}
+
+			var html = '<table class="staff-schedule__table">';
+			html += '<thead><tr><th>氏名</th><th>勤務時間</th></tr></thead>';
+			html += '<tbody>';
+			for (var i = 0; i < data.staff.length; i++) {
+				html += '<tr>';
+				html += '<td>' + escapeHtml(data.staff[i].name) + '</td>';
+				html += '<td>' + escapeHtml(data.staff[i].hours) + '</td>';
+				html += '</tr>';
+			}
+			html += '</tbody></table>';
+			$('#schedule-content').html(html);
+		}
+
+		function escapeHtml(str) {
+			if (!str) return '';
+			return String(str)
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;');
+		}
+	})();
+	</script>
+
+	<script>
+		(function (d) {
+			var s = d.getElementsByTagName('script')[0];
+			var c1 = d.createElement('link');
+			c1.rel = 'stylesheet';
+			c1.href = 'https://fonts.googleapis.com/earlyaccess/notosansjp.css';
+			s.parentNode.insertBefore(c1, s);
+		})(document);
+	</script>
+</body>
+
+</html>
